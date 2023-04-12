@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>AJAX METHOD GET</title>
+	<!-- Bootstrap CSS -->
+	<link href="assets/bootstrap/bootstrap-4/css/bootstrap.min.css"
+	rel="stylesheet">
+	<!-- JQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="assets/bootstrap/bootstrap-4/js/jquery-3.2.1.slim.min.js"></script>
+	<script src="assets/bootstrap/bootstrap-4/js/popper.min.js"></script>
+	<script src="assets/bootstrap/bootstrap-4/js/bootstrap.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"
+		integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ=="
+		crossorigin="anonymous" referrerpolicy="no-referrer">
+	</script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(() => {
+			// C1: enter submit call api
+			// $('#searchForm').on('submit', (e) => {
+			// 	e.preventDefault();
+			// 	let searchText = $('#searchInput').val();
+			// 	getMovies(searchText);   
+			// });
+
+			// C2: click search call api
+			$('.submit').on('click', (e) => {
+				e.preventDefault();
+				let searchText = $('#searchInput').val();
+				(searchText && searchText !== null) ? getMovies(searchText) : console.log("chưa call được api");
+			});
+		});
+		const apiKey = '92b2df3080b91d92b31eacb015fc5497'; 
+		let baseURL = 'https://api.themoviedb.org/3/';
+		let imageURL = 'https://image.tmdb.org/t/p/w185';
+		function getMovies(searchText) {
+			let url = `${baseURL}search/movie?api_key=${apiKey}&query=${searchText}&language=en-US&include_adult=false`;
+			$.ajax({
+				method: 'GET',
+				url: url,
+				success: function(data, status) {
+					let output = '';
+					if(data["results"].length > 0) {
+						for(let i = 0; i < data["results"].length; i++) {
+							let posterPath = data["results"][i]["poster_path"];
+							output += `
+								<div class="movie">
+								<img class="image" src=${(imageURL + String(posterPath)) ? imageURL + String(posterPath) : "assets/images/no-img.jpg"} alt="No image found." loading="lazy">
+									<div class="ratingFlex">
+										<h4 class="title">
+											${data["results"][i]["title"]}
+										</h4>
+										<div class="rating">
+											${data["results"][i]["vote_average"]}
+										</div>
+									</div>
+								</div>
+							`;
+							$('.result').html(output);
+						}
+					// console.log(status);
+					// console.log(data);
+					} else {
+						output += `
+							<p class="empty text-danger">
+								Không có kết quả . Bạn vui lòng tìm kiếm bằng từ khóa khác !
+							</p>
+						`;
+						$('.result').html(output);
+					}
+				}
+			}); 
+		}
+	</script>
+	<style>
+		.result {
+			margin: 2rem;
+			display: flex;
+			flex-direction: row;
+			align-items: unset;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+		.movie {
+			background-color: rgb(191, 215, 255);
+			color: rgb(84, 101, 255);
+			margin: 1rem;
+			margin-bottom: 1rem;
+			padding: 0.25rem;
+			width: min-content;
+			height: 100%;
+			overflow: hidden;
+		}
+		.movie .image{
+			display: block;
+			transition: transform 0.7s ease;
+			max-width: 320px;
+			min-height: 450px;
+			font-size: 1rem;
+			text-align: center;
+		}
+		.movie .image:hover {
+			transform: scale(1.02);
+		} 
+		.ratingFlex {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			margin: 0.5rem;  
+		}
+		.ratingFlex .title {
+			padding: 0;
+			margin: 0;
+		}
+		.ratingFlex .rating {
+			background-color: rgb(237, 242, 244);
+			border: 1px solid rgb(84, 101, 255);
+			padding: 0.15rem 0.5rem;
+			margin: 0 0.5rem;
+		}
+		#searchForm {
+			width: 500px;
+			margin: 0 auto;
+		}
+	</style>
+	<body>
+		<h2 class="text-center mt-5">Search for a Movie</h>
+		<div class="search container mt-3">
+			<div class="row">
+				<form class="form-group d-flex" id="searchForm">
+					<input 
+						type="text" 
+						id="searchInput"
+						class="form-control"
+						placeholder="Search here..."
+					/>
+					<button class="submit btn btn-primary ml-2">search</button>
+				</form>
+			</div>
+		</div>
+		<div class="result"></div>
+	</body>
+</html>
